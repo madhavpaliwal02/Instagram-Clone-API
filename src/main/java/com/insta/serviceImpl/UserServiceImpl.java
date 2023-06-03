@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private static UserRepo userRepo;
+    private final UserRepo userRepo;
 
     // Register new User
     @Override
@@ -158,14 +158,17 @@ public class UserServiceImpl implements UserService {
         throw new UserException("You can't update this user");
     }
 
+    // Get a User by username
     @Override
-    public User findUserByProfile(String token) throws UserException {
-        // TODO Auto-generated method stub
-        return null;
+    public User findUserByUsername(String username) throws UserException {
+        Optional<User> user = userRepo.findByUsername(username);
+        if (user.isPresent())
+            return user.get();
+        throw new UserException("User not found with username " + username);
     }
 
     @Override
-    public User findUserByUsername(String username) throws UserException {
+    public User findUserByProfile(String token) throws UserException {
         // TODO Auto-generated method stub
         return null;
     }
