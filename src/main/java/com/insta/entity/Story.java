@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "t_stories")
+@Table(name = "t_story")
 public class Story {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +36,7 @@ public class Story {
     })
     private UserDto user;
 
-    @Column(nullable = false)
+    @Column(insertable = false, updatable = false)
     private String image;
     private String caption;
     private LocalDateTime timestamp;

@@ -38,6 +38,7 @@ public class Post {
     private Integer id;
 
     private String caption;
+    @Column(insertable = false, updatable = false)
     private String image;
     private String location;
     private LocalDateTime createdAt;
@@ -51,6 +52,7 @@ public class Post {
 
     @OneToMany
     private List<Comment> comments = new ArrayList<>();
+
     @Embedded
     @ElementCollection
     @JoinTable(name = "likedByUsers", joinColumns = @JoinColumn(name = "user_id"))
