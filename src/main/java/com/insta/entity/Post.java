@@ -22,14 +22,14 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+// import lombok.Builder;
+// import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+// @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+// @Builder
 @Entity
 @Table(name = "t_posts")
 public class Post {
@@ -57,4 +57,68 @@ public class Post {
     @ElementCollection
     @JoinTable(name = "likedByUsers", joinColumns = @JoinColumn(name = "user_id"))
     private Set<UserDto> likedByUsers = new HashSet<>();
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public Set<UserDto> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(Set<UserDto> likedByUsers) {
+        this.likedByUsers = likedByUsers;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public UserDto getUser() {
+        return user;
+    }
+
+    public void setUser(UserDto user) {
+        this.user = user;
+    }
 }
