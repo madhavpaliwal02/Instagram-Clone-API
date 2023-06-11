@@ -11,9 +11,9 @@ import com.insta.entity.User;
 
 public interface UserRepo extends JpaRepository<User, Integer> {
 
-    public Optional<User> findByEmail(String email);
+    public Optional<User> findUserByEmail(String email);
 
-    public Optional<User> findByUsername(String username);
+    public Optional<User> findUserByUsername(String username);
 
     @Query("SELECT u FROM User u WHERE u.id IN :users")
     public List<User> findAllUserByIds(@Param("users") List<Integer> userIds);

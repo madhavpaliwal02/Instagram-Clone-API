@@ -3,12 +3,15 @@ package com.insta.serviceImpl;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.insta.dto.UserDto;
 import com.insta.entity.User;
 import com.insta.exception.UserException;
 import com.insta.repo.UserRepo;
+import com.insta.security.JwtTokenClaims;
+import com.insta.security.JwtTokenProvider;
 import com.insta.serviceImpl.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // Register new User
     @Override
@@ -27,22 +32,20 @@ public class UserServiceImpl implements UserService {
             throw new UserException("Invalid input value");
 
         // Verifying that no existing user have same email
-        Optional<User> isEmail = userRepo.findByEmail(u.getEmail());
+        Optional<User> isEmail = userRepo.findUserByEmail(u.getEmail());
         if (isEmail.isPresent())
             throw new UserException("Email is already exist");
 
         // Verifying that no existing user have same username
-        Optional<User> isUsername = userRepo.findByUsername(u.getUsername());
+        Optional<User> isUsername = userRepo.findUserByUsername(u.getUsername());
         if (isUsername.isPresent())
             throw new UserException("Username is already taken");
 
-        // Creating new user, storing in the database & return it
-        User newUser = User.builder()
-                .name(u.getName())
-                .username(u.getUsername())
-                .email(u.getEmail())
-                .password(u.getPassword())
-                .build();
+        User newUser = new User();
+        newUser.setName(u.getName());
+        newUser.setUsername(u.getUsername());
+        newUser.setEmail(u.getEmail());
+        newUser.setPassword(passwordEncoder.encode(u.getPassword()));
 
         return userRepo.save(newUser);
     }
@@ -161,21 +164,31 @@ public class UserServiceImpl implements UserService {
     // Get a User by username
     @Override
     public User findUserByUsername(String username) throws UserException {
-        Optional<User> user = userRepo.findByUsername(username);
+        Optional<User> user = userRepo.findUserByUsername(username);
         if (user.isPresent())
             return user.get();
         throw new UserException("User not found with username " + username);
     }
 
+    // Find User by Profile
     @Override
     public User findUserByProfile(String token) throws UserException {
-        // TODO Auto-generated method stub
-        return null;
+        token = token.substring(7);
+
+        JwtTokenClaims jwtTokenClaims = jwtTokenProvider.getClaimsFromToken(token);
+
+        String email = jwtTokenClaims.getUsername();
+
+        Optional<User> user = userRepo.findUserByEmail(email);
+
+        if (user.isPresent())
+            return user.get();
+
+        throw new UserException("Invalid Token...");
     }
 
     @Override
     public List<User> searchUser(String query) throws UserException {
-        // TODO Auto-generated method stub
         return null;
     }
 
