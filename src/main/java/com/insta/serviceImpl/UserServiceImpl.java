@@ -173,6 +173,7 @@ public class UserServiceImpl implements UserService {
     // Find User by Profile
     @Override
     public User findUserByProfile(String token) throws UserException {
+        // Bearer uyfydtrdsyhjhjhugtfrdrtedfggjkoiuipgcfdxtrdtghgvc
         token = token.substring(7);
 
         JwtTokenClaims jwtTokenClaims = jwtTokenProvider.getClaimsFromToken(token);
@@ -204,4 +205,5 @@ public class UserServiceImpl implements UserService {
                 .image(user.getImage())
                 .build();
     }
+
 }
