@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
     private final UserService userService;
@@ -35,7 +37,7 @@ public class AuthController {
     // SignIn
     @GetMapping("/signin")
     public ResponseEntity<User> signInHandler(Authentication auth) throws BadCredentialsException {
-
+        System.out.println("Auth: " + auth);
         Optional<User> opt = userRepo.findUserByEmail(auth.getName());
 
         if (opt.isPresent())

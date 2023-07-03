@@ -18,7 +18,8 @@ public class AppConfig {
     @Bean
     public SecurityFilterChain securityConfiguration(HttpSecurity http) throws Exception {
 
-        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        http.cors(withDefaults())
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/signup")
                         .permitAll()
