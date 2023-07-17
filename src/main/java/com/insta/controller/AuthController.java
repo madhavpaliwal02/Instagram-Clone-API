@@ -37,8 +37,10 @@ public class AuthController {
     // SignIn
     @GetMapping("/signin")
     public ResponseEntity<User> signInHandler(Authentication auth) throws BadCredentialsException {
-        System.out.println("Auth: " + auth);
+        System.out.println("Auth: " + auth.getName());
         Optional<User> opt = userRepo.findUserByEmail(auth.getName());
+
+        System.out.println(opt.get());
 
         if (opt.isPresent())
             return new ResponseEntity<User>(opt.get(), HttpStatus.ACCEPTED);

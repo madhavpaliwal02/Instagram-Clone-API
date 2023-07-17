@@ -27,6 +27,7 @@ public class UserServiceImpl implements UserService {
     // Register new User
     @Override
     public User registerUser(User u) throws UserException {
+        System.out.println("User: " + u);
         // Checking for the valid input field
         if (u.getName() == null || u.getUsername() == null || u.getEmail() == null || u.getPassword() == null)
             throw new UserException("Invalid input value");
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
         newUser.setUsername(u.getUsername());
         newUser.setEmail(u.getEmail());
         newUser.setPassword(passwordEncoder.encode(u.getPassword()));
-
+        System.out.println("Registered Successfully...");
         return userRepo.save(newUser);
     }
 
@@ -206,4 +207,11 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    public User findUserByEmail(String email) throws Exception {
+        Optional<User> user = userRepo.findUserByEmail(email);
+        if (user.isPresent())
+            return user.get();
+        throw new Exception("Not found by email...");
+    }
 }

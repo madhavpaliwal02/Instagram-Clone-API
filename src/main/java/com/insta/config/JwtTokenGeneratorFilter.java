@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +41,10 @@ public class JwtTokenGeneratorFilter extends OncePerRequestFilter {
                     .signWith(key).compact();
 
             response.setHeader(SecurityContext.HEADER, jwt);
+            // HttpHeaders headers = new HttpHeaders();
+            // headers.set("Authorization", jwt);
+            // System.out.println("Token: " + jwt);
+            // System.out.println("Token: " + response.getHeader("Authorization"));
         }
         filterChain.doFilter(request, response);
     }

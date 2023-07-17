@@ -24,4 +24,6 @@ public interface UserService {
     public List<User> searchUser(String query) throws UserException;
 
     public User updateUserDetails(User updatedUser, User existingUser) throws UserException;
+
+    public User findUserByEmail(String email) throws Exception;
 }

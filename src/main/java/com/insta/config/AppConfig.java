@@ -16,7 +16,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class AppConfig {
 
     @Bean
-    public SecurityFilterChain securityConfiguration(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityConfiguration(HttpSecurity http) throws Exception {
 
         http.cors(withDefaults())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -32,7 +32,7 @@ public class AppConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
