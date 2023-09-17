@@ -2,9 +2,9 @@ package com.insta.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,20 +19,17 @@ import com.insta.entity.User;
 import com.insta.exception.UserException;
 import com.insta.serviceImpl.service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
-    @GetMapping
-    public String home() {
-        return "Hii Palak...";
-    }
+    // @GetMapping
+    // public String home() {
+    // return "Hii Palak...";
+    // }
 
     // Get a user by userId
     @GetMapping("/id/{id}")
@@ -105,9 +102,10 @@ public class UserController {
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<User> findUserByEmailHandler(@PathVariable("email") String email) throws Exception{
-        User user = userService.findUserByEmail(email);
-        return new ResponseEntity<User>(user, HttpStatus.OK);
+    // Get all users
+    @GetMapping
+    public ResponseEntity<List<User>> findAllUsersHandler() {
+        List<User> list = userService.getAllUsers();
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

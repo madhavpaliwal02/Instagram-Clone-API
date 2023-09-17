@@ -2,9 +2,9 @@ package com.insta.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,16 +23,15 @@ import com.insta.exception.UserException;
 import com.insta.serviceImpl.service.PostService;
 import com.insta.serviceImpl.service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/posts")
-@CrossOrigin(origins = "http://localhost:3000")
 public class PostController {
 
-    private final PostService postService;
-    private final UserService userService;
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private UserService userService;
 
     // Create post
     @PostMapping("/create")
@@ -86,7 +85,7 @@ public class PostController {
     }
 
     // Delete a post
-    @DeleteMapping("delete/{postId}")
+    @DeleteMapping("/delete/{postId}")
     public ResponseEntity<MessageResponse> deletePostHandler(@PathVariable("postId") Integer postId,
             @RequestHeader("Authorization") String token) throws UserException, PostException {
 

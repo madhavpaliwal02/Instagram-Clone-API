@@ -9,6 +9,8 @@ public interface UserService {
 
     public User registerUser(User user) throws UserException;
 
+    public List<User> getAllUsers();
+
     public User findUserById(Integer id) throws UserException;
 
     public User findUserByProfile(String token) throws UserException;
@@ -24,6 +26,4 @@ public interface UserService {
     public List<User> searchUser(String query) throws UserException;
 
     public User updateUserDetails(User updatedUser, User existingUser) throws UserException;
-
-    public User findUserByEmail(String email) throws Exception;
 }

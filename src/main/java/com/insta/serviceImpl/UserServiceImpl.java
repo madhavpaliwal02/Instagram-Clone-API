@@ -3,6 +3,10 @@ package com.insta.serviceImpl;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.security.core.Authentication;
+// import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,32 +14,31 @@ import com.insta.dto.UserDto;
 import com.insta.entity.User;
 import com.insta.exception.UserException;
 import com.insta.repo.UserRepo;
-import com.insta.security.JwtTokenClaims;
-import com.insta.security.JwtTokenProvider;
+import com.insta.security.JwtTokenHelper;
 import com.insta.serviceImpl.service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepo userRepo;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private UserRepo userRepo;
+
+    @Autowired
+    private ModelMapper mapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenHelper jwtTokenHelper;
 
     // Register new User
     @Override
     public User registerUser(User u) throws UserException {
         System.out.println("User: " + u);
         // Checking for the valid input field
-        if (u.getName() == null || u.getUsername() == null || u.getEmail() == null || u.getPassword() == null)
+        if (u.getName() == null || u.getUsername() == null || u.getPassword() == null)
             throw new UserException("Invalid input value");
-
-        // Verifying that no existing user have same email
-        Optional<User> isEmail = userRepo.findUserByEmail(u.getEmail());
-        if (isEmail.isPresent())
-            throw new UserException("Email is already exist");
 
         // Verifying that no existing user have same username
         Optional<User> isUsername = userRepo.findUserByUsername(u.getUsername());
@@ -45,10 +48,16 @@ public class UserServiceImpl implements UserService {
         User newUser = new User();
         newUser.setName(u.getName());
         newUser.setUsername(u.getUsername());
-        newUser.setEmail(u.getEmail());
         newUser.setPassword(passwordEncoder.encode(u.getPassword()));
+        newUser.setImage("default.png");
+        // newUser.setPassword(u.getPassword());
         System.out.println("Registered Successfully...");
         return userRepo.save(newUser);
+    }
+
+    // Get all Users
+    public List<User> getAllUsers() {
+        return this.userRepo.findAll();
     }
 
     // Get a user by userId
@@ -63,6 +72,9 @@ public class UserServiceImpl implements UserService {
     // Following a user
     @Override
     public String followUser(Integer reqUserId, Integer followUserId) throws UserException {
+        if (reqUserId == followUserId)
+            throw new UserException("User can't follow themselves");
+
         // Getting Both users
         User reqUser = findUserById(reqUserId);
         User followUser = findUserById(followUserId);
@@ -70,6 +82,11 @@ public class UserServiceImpl implements UserService {
         // Converting both into userDto
         UserDto follower = userToDto(reqUser);
         UserDto following = userToDto(followUser);
+
+        // Check if already Unfollow
+        if (reqUser.getFollowing().contains(following) ||
+                followUser.getFollower().contains(follower))
+            throw new UserException("You already followed " + followUser.getUsername());
 
         // Adding a following in reqUser
         reqUser.getFollowing().add(following);
@@ -86,6 +103,9 @@ public class UserServiceImpl implements UserService {
     // Unfollowing a user
     @Override
     public String unfollowUser(Integer reqUserId, Integer followUserId) throws UserException {
+        if (reqUserId == followUserId)
+            throw new UserException("User can't unfollow themselves");
+
         // Getting Both users
         User reqUser = findUserById(reqUserId);
         User followUser = findUserById(followUserId);
@@ -94,10 +114,15 @@ public class UserServiceImpl implements UserService {
         UserDto follower = userToDto(reqUser);
         UserDto following = userToDto(followUser);
 
+        // Check if already Unfollow
+        if (!(reqUser.getFollowing().contains(following) &&
+                followUser.getFollower().contains(follower)))
+            throw new UserException("You already unfollowed " + followUser.getUsername());
+
         // Removing a following in reqUser
-        reqUser.getFollowing().add(following);
+        reqUser.getFollowing().remove(following);
         // Removing a follower in followUser
-        followUser.getFollower().add(follower);
+        followUser.getFollower().remove(follower);
 
         // Saving into the database
         userRepo.save(reqUser);
@@ -119,6 +144,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUserDetails(User updatedUser, User existingUser) throws UserException {
 
+        System.out.println(updatedUser);
+        System.out.println(existingUser);
         // Updating name
         if (updatedUser.getName() != null)
             existingUser.setName(updatedUser.getName());
@@ -126,10 +153,6 @@ public class UserServiceImpl implements UserService {
         // Updating username
         if (updatedUser.getUsername() != null)
             existingUser.setUsername(updatedUser.getUsername());
-
-        // Updating email
-        if (updatedUser.getEmail() != null)
-            existingUser.setEmail(updatedUser.getEmail());
 
         // Updating password
         if (updatedUser.getPassword() != null)
@@ -177,16 +200,13 @@ public class UserServiceImpl implements UserService {
         // Bearer uyfydtrdsyhjhjhugtfrdrtedfggjkoiuipgcfdxtrdtghgvc
         token = token.substring(7);
 
-        JwtTokenClaims jwtTokenClaims = jwtTokenProvider.getClaimsFromToken(token);
+        // String username =
+        // SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = this.jwtTokenHelper.getUsernameFromToken(token);
+        System.out.println(username);
+        Optional<User> user = this.userRepo.findUserByUsername(username);
+        return user.get();
 
-        String email = jwtTokenClaims.getUsername();
-
-        Optional<User> user = userRepo.findUserByEmail(email);
-
-        if (user.isPresent())
-            return user.get();
-
-        throw new UserException("Invalid Token...");
     }
 
     @Override
@@ -198,20 +218,14 @@ public class UserServiceImpl implements UserService {
 
     // Helper function map User to userDto
     public UserDto userToDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .image(user.getImage())
-                .build();
+        return this.mapper.map(user, UserDto.class);
+        // UserDto.builder()
+        // .id(user.getId())
+        // .name(user.getName())
+        // .username(user.getUsername())
+        // .email(user.getEmail())
+        // .image(user.getImage())
+        // .build();
     }
 
-    @Override
-    public User findUserByEmail(String email) throws Exception {
-        Optional<User> user = userRepo.findUserByEmail(email);
-        if (user.isPresent())
-            return user.get();
-        throw new Exception("Not found by email...");
-    }
 }

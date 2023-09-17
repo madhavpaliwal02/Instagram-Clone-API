@@ -11,13 +11,11 @@ import com.insta.entity.User;
 
 public interface UserRepo extends JpaRepository<User, Integer> {
 
-    public Optional<User> findUserByEmail(String email);
-
     public Optional<User> findUserByUsername(String username);
 
     @Query("SELECT u FROM User u WHERE u.id IN :users")
     public List<User> findAllUserByIds(@Param("users") List<Integer> userIds);
 
-    @Query("SELECT DISTINCT u FROM User u where u.username LIKE %:query% OR u.email LIKE %:query%")
+    @Query("SELECT DISTINCT u FROM User u where u.username LIKE %:query%")
     public List<User> findByQuery(@Param("query") String query);
 }

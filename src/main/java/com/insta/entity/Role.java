@@ -1,18 +1,17 @@
-package com.insta.dto;
+package com.insta.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class UserDto {
-
-    private Integer id;
+@Entity
+public class Role {
+    @Id
+    private int id;
     private String name;
-    private String username;
-    private String image;
 }

@@ -3,6 +3,8 @@ package com.insta.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.insta.dto.UserDto;
@@ -11,19 +13,20 @@ import com.insta.entity.User;
 import com.insta.exception.StoryException;
 import com.insta.exception.UserException;
 import com.insta.repo.StoryRepo;
-// import com.insta.repo.UserRepo;
 import com.insta.serviceImpl.service.StoryService;
 import com.insta.serviceImpl.service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class StoryServiceImpl implements StoryService {
 
-    private final StoryRepo storyRepo;
-    private final UserService userService;
-    // private final UserRepo userRepo;
+    @Autowired
+    private StoryRepo storyRepo;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    public ModelMapper mapper;
 
     /* Create Story */
     @Override
@@ -61,13 +64,14 @@ public class StoryServiceImpl implements StoryService {
 
     // Helper function map User to userDto
     public UserDto userToDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .image(user.getImage())
-                .build();
+        return this.mapper.map(user, UserDto.class);
+        // UserDto.builder()
+        // .id(user.getId())
+        // .name(user.getName())
+        // .username(user.getUsername())
+        // .email(user.getEmail())
+        // .image(user.getImage())
+        // .build();
     }
 
 }

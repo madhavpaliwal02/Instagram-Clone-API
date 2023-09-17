@@ -2,9 +2,9 @@ package com.insta.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,16 +20,15 @@ import com.insta.exception.UserException;
 import com.insta.serviceImpl.service.StoryService;
 import com.insta.serviceImpl.service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/stories")
-@CrossOrigin(origins = "http://localhost:3000")
 public class StoryController {
 
-    private final StoryService storyService;
-    private final UserService userService;
+    @Autowired
+    private StoryService storyService;
+
+    @Autowired
+    private UserService userService;
 
     /* Create Story Handler */
     @PostMapping("/create")

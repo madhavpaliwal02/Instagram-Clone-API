@@ -1,10 +1,18 @@
 package com.insta.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.insta.dto.UserDto;
 
 import jakarta.persistence.CascadeType;
@@ -15,21 +23,20 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-// import lombok.Builder;
-// import lombok.Data;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// @Data
 @AllArgsConstructor
 @NoArgsConstructor
-// @Builder
 @Entity
 @Table(name = "t_user")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -37,7 +44,6 @@ public class User {
     private String name;
     private String username;
     private String password;
-    private String email;
     private String mobile;
     private String website;
     private String bio;
@@ -57,6 +63,10 @@ public class User {
 
     @ManyToMany
     private List<Post> savedPost = new ArrayList<Post>();
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "users", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
+    private Set<Role> roles = new HashSet<>();
 
     public Integer getId() {
         return id;
@@ -80,22 +90,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getMobile() {
@@ -138,6 +132,24 @@ public class User {
         this.image = image;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    @JsonProperty
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @JsonIgnore
+    public String getPassword() {
+        return this.password;
+    }
+
     public Set<UserDto> getFollower() {
         return follower;
     }
@@ -168,6 +180,33 @@ public class User {
 
     public void setSavedPost(List<Post> savedPost) {
         this.savedPost = savedPost;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorities = this.roles.stream()
+                .map((role) -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+        return authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
 }

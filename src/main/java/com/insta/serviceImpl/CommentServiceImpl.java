@@ -3,31 +3,33 @@ package com.insta.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.insta.dto.UserDto;
-import com.insta.entity.Comment;
-import com.insta.entity.Post;
-import com.insta.entity.User;
-import com.insta.exception.CommentException;
-import com.insta.exception.PostException;
-import com.insta.exception.UserException;
-import com.insta.repo.CommentRepo;
-import com.insta.repo.PostRepo;
-import com.insta.serviceImpl.service.CommentService;
-import com.insta.serviceImpl.service.PostService;
-import com.insta.serviceImpl.service.UserService;
-
-import lombok.RequiredArgsConstructor;
+import com.insta.entity.*;
+import com.insta.exception.*;
+import com.insta.repo.*;
+import com.insta.serviceImpl.service.*;
 
 @Service
-@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-    private final CommentRepo commentRepo;
-    private final UserService userService;
-    private final PostService postService;
-    private final PostRepo postRepo;
+    @Autowired
+    private CommentRepo commentRepo;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private PostRepo postRepo;
+
+    @Autowired
+    public ModelMapper mapper;
 
     /* Creating a comment */
     @Override
@@ -98,13 +100,14 @@ public class CommentServiceImpl implements CommentService {
 
     // Helper function map User to userDto
     public UserDto userToDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .image(user.getImage())
-                .build();
+        return this.mapper.map(user, UserDto.class);
+        // UserDto.builder()
+        //         .id(user.getId())
+        //         .name(user.getName())
+        //         .username(user.getUsername())
+        //         .email(user.getEmail())
+        //         .image(user.getImage())
+        //         .build();
     }
 
 }

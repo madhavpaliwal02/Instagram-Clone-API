@@ -1,8 +1,11 @@
 package com.insta.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.insta.dto.UserDto;
@@ -15,15 +18,20 @@ import com.insta.repo.UserRepo;
 import com.insta.serviceImpl.service.PostService;
 import com.insta.serviceImpl.service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final PostRepo postRepo;
-    private final UserService userService;
-    private final UserRepo userRepo;
+    @Autowired
+    private PostRepo postRepo;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserRepo userRepo;
+
+    @Autowired
+    public ModelMapper mapper;
 
     // Create a Post
     @Override
@@ -33,6 +41,7 @@ public class PostServiceImpl implements PostService {
         UserDto userDto = userToDto(user);
 
         post.setUser(userDto);
+        post.setCreatedAt(LocalDateTime.now());
 
         Post postCreated = postRepo.save(post);
         return postCreated;
@@ -144,12 +153,13 @@ public class PostServiceImpl implements PostService {
 
     // Helper function map User to userDto
     public UserDto userToDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .image(user.getImage())
-                .build();
+        return this.mapper.map(user, UserDto.class);
+        // UserDto.builder()
+        // .id(user.getId())
+        // .name(user.getName())
+        // .username(user.getUsername())
+        // .email(user.getEmail())
+        // .image(user.getImage())
+        // .build();
     }
 }
